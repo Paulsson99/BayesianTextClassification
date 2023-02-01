@@ -55,6 +55,16 @@ namespace NaiveBayesApplication
             //                into a single word.
             //
             //            ... and so on: There might be more things to do - you have to figure it out.
+
+            string[] charsToRemove = new string[] { "\"", "(", ")", "{", "}", "[", "]", "<", ">"};
+            this.rawData = rawData.ToLower();
+            foreach (string c in charsToRemove)
+            {
+                this.rawData = this.rawData.Replace(c, string.Empty);
+            }
+            this.rawData = this.rawData.Replace("-", " ");
+            this.rawData = this.rawData.Replace(" '", " ").Replace("' ", " ");
+            this.rawData.Trim();
         }
 
         // To do: Write this method.
@@ -66,6 +76,7 @@ namespace NaiveBayesApplication
             // removing ' ' and any interpunction characters characters, e.g. , . ! ? ...
             // Hint: Use the Split() command and the split list defined above.
             // Make sure to remove empty strings (using StringSplitOptions ...).
+            this.tokenList = new List<string>(this.rawData.Split(splitList, StringSplitOptions.RemoveEmptyEntries));
         }
 
         // To do: Write this method.
@@ -75,6 +86,15 @@ namespace NaiveBayesApplication
             // Hint: Apply the Contains() method to the stopWordList,
             // with the current token as input
 
+            List<string> tempTokenList = new List<string>();
+            foreach (string token in this.tokenList)
+            {
+                if (!stopWordList.Contains(token))
+                {
+                    tempTokenList.Add(token);
+                }
+            }
+            this.tokenList = tempTokenList;
         }
 
 
@@ -90,7 +110,7 @@ namespace NaiveBayesApplication
             else
             {
                 string documentAsString = label.ToString() + " ";
-                foreach (string token in tokenList) { documentAsString += token + " "; };
+                foreach (string token in tokenList) { documentAsString += token + " - "; };
                 documentAsString = documentAsString.TrimEnd(' ');
                 return documentAsString;
             }

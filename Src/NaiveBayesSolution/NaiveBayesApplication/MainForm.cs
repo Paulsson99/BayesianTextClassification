@@ -57,6 +57,15 @@ namespace NaiveBayesApplication
             //
             // Add code here: Compute the (two) entries of the documentClassifier.PriorProbabilitiesList
             //
+            int countPriorClass0 = 0;
+            int countPriorClass1 = 0;
+            foreach (Document doc in this.trainingDocumentList)
+            {
+                if (doc.Label == 0) countPriorClass0++;
+                else countPriorClass1++;
+            }
+            documentClassifier.PriorProbabilitiesList.Add((double)countPriorClass0 / this.trainingDocumentList.Count);
+            documentClassifier.PriorProbabilitiesList.Add((double)countPriorClass1 / this.trainingDocumentList.Count);
 
             // Display on-screen: Already completed, no need to change below this line, for this method
             List<string> informationList = new List<string>();
@@ -264,6 +273,14 @@ namespace NaiveBayesApplication
                 {
                     testDocument.RemoveStopWords(stopWordList);
                 }
+            }
+
+            Clean(trainingDocumentList);
+            ShowDocumentList(trainingDocumentList, trainingDocumentListBox);
+            if (testDocumentList != null)
+            {
+                Clean(testDocumentList);
+                ShowDocumentList(testDocumentList, testDocumentListBox);
             }
 
             findPriorProbabilitiesButton.Enabled = true;

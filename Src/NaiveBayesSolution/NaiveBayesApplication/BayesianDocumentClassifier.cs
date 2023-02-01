@@ -38,6 +38,27 @@ namespace NaiveBayesApplication
             int inferredClass = -1; // The inferred class label, either 0 or 1, should be assigned below
 
             // Add code here - See Eq. (4.26).
+            double maxClassValue = double.NegativeInfinity;
+            for (int c = 0; c < numberOfClasses; c++)
+            {
+                double classValue = Math.Log(this.PriorProbabilitiesList[c]);
+                foreach (string token in document.TokenList)
+                {
+                    foreach (ConditionalWordProbability cwp in this.ConditionalWordProbabilityList)
+                    {
+                        if (token == cwp.Word)
+                        {
+                            classValue += Math.Log(cwp.ConditionalProbabilityList[c]);
+                        }
+                    }
+                }
+                if (classValue > maxClassValue)
+                {
+                    inferredClass = c;
+                    maxClassValue = classValue;
+                }
+                document.ClassLogProbabilityList.Add(classValue);
+            }
 
             document.InferredLabel = inferredClass; // Assign the inferred label here - needed later on, in the MainForm.
             return inferredClass;
@@ -52,7 +73,11 @@ namespace NaiveBayesApplication
             //         to make it a list of distinct words.
             List<string> wordList = new List<string>();
             
-            // ... add code here
+            foreach (Document doc in documentList)
+            {
+                wordList.AddRange(doc.TokenList);
+            }
+            wordList = new List<string>(wordList.Distinct());
 
 
             // Step 2: Define conditional probabilities (just the words for now)
@@ -72,11 +97,35 @@ namespace NaiveBayesApplication
 
             // ... add code here: The mergedClassDocumentList should contain two
             //                    merged documents, one for each class (label).
+            for (int c = 0; c < numberOfClasses; c++)
+            {
+                List<Document> classDocs = new List<Document>();
+                foreach (Document doc in documentList)
+                {
+                    if (c == doc.Label) classDocs.Add(doc);
+                }
+                mergedClassDocumentList.Add(Document.Merge(classDocs));
+            }
 
             // Now compute the conditional word probabilities:
             // NOTE: Use add-1 (Laplace) smoothing here! Very important!
             // See Eq. (4.25) in the compendium.
             int totalDistinctWordCount = conditionalWordProbabilityList.Count;
+
+            foreach (ConditionalWordProbability cwp in conditionalWordProbabilityList)
+            {
+                for (int c = 0; c < numberOfClasses; c++)
+                {
+                    int tokenCount = 0;
+                    List<string> mergedDocTokens = mergedClassDocumentList[c].TokenList;
+                    foreach (string token in mergedDocTokens)
+                    {
+                        if (cwp.Word == token) tokenCount++;
+                    }
+                    double condProb = (double)(tokenCount + 1) / (mergedDocTokens.Count + totalDistinctWordCount);
+                    cwp.ConditionalProbabilityList.Add(condProb);
+                }
+            }
 
             // ... add code here: For each distinct token (word), run through
             //                    the merged documents (one per class), and
