@@ -70,7 +70,7 @@ namespace NaiveBayesApplication
         // To do: Write this method.
         public void Tokenize()
         {
-            Char[] splitList = new char[] { ' ', ',', ';', '.', '!', '?' };
+            char[] splitList = new char[] { ' ', ',', ';', '.', '!', '?' };
 
             // Tokenize the raw data string into words,
             // removing ' ' and any interpunction characters characters, e.g. , . ! ? ...
